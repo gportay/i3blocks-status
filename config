@@ -1,0 +1,38 @@
+# i3blocks configuration file.
+# see "man i3blocks" for documentation.
+
+# It is important that this file is edited as UTF-8.
+# The following line should contain a sharp s:
+# ß
+# If the above line is not correctly displayed, fix your editor first!
+
+command=./$name
+colors=true
+interval=5
+
+[ipv6]
+
+[disk]
+instance=/
+format=%avail
+
+[wireless]
+instance=_first_
+format_up=W: (%quality at %essid) %ip
+format_down=W: down
+
+[ethernet]
+instance=_first_
+format_up=E: %ip (%speed)
+format_down=E: down
+
+[battery]
+instance=all
+format=%status %percentage %remaining
+
+[load]
+format=%1min
+
+[tztime]
+instance=local
+format=%Y-%m-%d %H:%M:%S
