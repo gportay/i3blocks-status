@@ -1,2 +1,50 @@
 #!/bin/sh
-# TODO implement this
+
+INTERFACE="${instance:-_first_}"
+FORMAT_UP="${format_up:-W: (%quality at %essid) %ip}"
+FORMAT_DOWN="${format_down:-W: down}"
+
+if [ "$INTERFACE" = "_first_" ]
+then
+  INTERFACE="$(cat /proc/net/wireless | sed -n 3p | cut -d: -f1)"
+fi
+
+bitrate () {
+  iwlist "$INTERFACE" bitrate | grep Current | cut -d= -f2
+}
+
+essid () {
+  iwgetid "$INTERFACE" | sed -e 's,^.*ESSID:",,' -e 's,"$,,'
+}
+
+frequency () {
+  iwgetid "$INTERFACE" --freq | cut -d: -f2
+}
+
+ip () {
+  ifconfig "$INTERFACE" | grep -w inet | awk '{ print $2 }'
+}
+
+quality () {
+  # TODO get percentage instead like i3status
+  iwconfig "$INTERFACE" | grep 'Link Quality' | cut -d= -f2 | cut -d' ' -f1
+}
+
+if grep -wq up "/sys/class/net/$INTERFACE/operstate"
+then
+  echo "$FORMAT_UP" | sed \
+    -e "s,%bitrate,$(bitrate),g" \
+    -e "s,%essid,$(essid),g" \
+    -e "s,%frequency,$(frequency),g" \
+    -e "s,%ip,$(ip),g" \
+    -e "s,%quality,$(quality),g" \
+    -e q
+  echo
+  echo '#00FF00'
+else
+  echo "$FORMAT_DOWN"
+  echo
+  echo '#FF0000'
+fi
+
+exit

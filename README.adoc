@@ -76,4 +76,20 @@ TODO
 
 == +wireless+
 
-TODO
+Get the link quality, frequency, and ESSID of the given wireless network interface.
+
+.Options
+[horizontal]
++instance+:: Network interface (defaults to +_first_+)
++format_up+:: Format string when the interface is up. +
+Placeholders can be: +%bitrate+, +%essid+, +%frequency+, +%ip+, +%quality+.
++format_down+:: Format string when the interface is down.
+
+.Example
+[source,ini]
+----
+[wireless]
+instance=wlan0
+format_up=W: (%quality at %essid, %bitrate / %frequency) %ip
+format_down=W: down
+----
