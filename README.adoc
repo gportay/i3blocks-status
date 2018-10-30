@@ -88,7 +88,29 @@ TODO
 
 == +load+
 
-TODO
+Gets the system load (number of processes waiting for CPU time in the last +1+, +5+ and +15+ minutes).
+
+It is possible to define a +max_threshold+ that will color the load value red in case the load average of the last minute is getting higher than the configured threshold.
+Defaults to 5.
+The output format when above +max_threshold+ can be customized with +format_above_threshold+.
+
+.Options
+[horizontal]
++format+:: The format string (defaults to +%1min %5min %15min+) +
+Placeholders can be: +%1min+, +%5min+, +%15min+.
++format_above_threshold+:: The format string when threshold is reached (defaults to +format+)
++max_threshold+:: The high threshold level (defaults to +5+)
+
+.Example
+[source,ini]
+----
+[load]
+
+# Default values
+#format=%1min %5min %15min
+# format_above_threshold is not set and fallback to format
+#max_threshold=5
+----
 
 == +path_exists+
 

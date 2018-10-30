@@ -1,2 +1,44 @@
-#!/bin/sh
-# TODO implement this
+#!/bin/bash
+
+set -e
+
+# threshold_reached()
+# Return 1 if threshold is reached, 0 otherwise.
+threshold_reached() {
+	echo "$_1min > $max_threshold" | bc | grep -q 1
+}
+
+# Setup default values
+format="${format:-%1min %5min %15min}"
+format_above_threshold="${format_above_threshold-$format}"
+max_threshold="${max_threshold:-5}"
+
+# Set full text format string
+fulltext_format="$format"
+
+# Get load average from procfs
+loadavg=($(cat /proc/loadavg))
+
+# Compute all placeholders values
+_1min="${loadavg[0]}"
+_5min="${loadavg[1]}"
+_15min="${loadavg[2]}"
+
+# Check for threshold to update formatted string
+fulltext_format="$format"
+if threshold_reached
+then
+	threshold=true
+	fulltext_format="$format_above_threshold"
+fi
+
+# Update full text (first line)
+eval "$(echo "echo \"${fulltext_format//%/\$_}\"")"
+
+# Update text color if threshold is reached
+if [[ $threshold ]]
+then
+	echo           # empty short text (second line)
+	echo "#ff0000" # text color (third line)
+	               # no background color (four line)
+fi

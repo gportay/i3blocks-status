@@ -41,6 +41,11 @@ format=%status %percentage %remaining
 [load]
 format=%1min
 
+# Default values
+#format=%1min %5min %15min
+#format_above_threshold is left unset and fallback to format
+#max_threshold=5
+
 [tztime]
 instance=local
 format=%Y-%m-%d %H:%M:%S
