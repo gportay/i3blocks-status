@@ -126,7 +126,35 @@ TODO
 
 == +tztime+
 
-TODO
+Outputs the current time in the given +timezone+.
+If no +timezone+ is given, local time will be used.
+The system’s timezone database is usually installed in /usr/share/zoneinfo.
+Files below that path make for valid timezone strings, e.g. for /usr/share/zoneinfo/Europe/Berlin you can set timezone to Europe/Berlin in the +tztime+ module.
+To override the locale settings of your environment, set the +locale+ option.
+
+.Options
+[horizontal]
++format+:: The +strftime+ format string if format_time is unset or format string (defaults to +%Y-%m-%d %H:%M:%S %Z+) +
+If +format_time+ is unset, placeholders are the one from +strftime(3)+.
+Otherwise, placeholder is +%time+ (i.e. the +strftime(3)+ format string).
++timezone+:: The timezone (defaults to "")
++locale+:: The locale (defaults to "")
++format_time+:: The +strftime+ format string (defaults to unset). +
+See +strftime(3)+ for details on the format string.
+
+.Example
+[source,ini]
+----
+[tztime]
+instance=local
+format=%Y-%m-%d %H:%M:%S
+
+# Default values
+#format=%Y-%m-%d %H:%M:%S %Z
+# timezone is not set
+# locale is not set
+# format_time is not set
+----
 
 == +volume+
 

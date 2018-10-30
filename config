@@ -49,3 +49,9 @@ format=%1min
 [tztime]
 instance=local
 format=%Y-%m-%d %H:%M:%S
+
+# Default values
+#format=%Y-%m-%d %H:%M:%S %Z
+# timezone is not set
+# locale is not set
+# format_time is not set
