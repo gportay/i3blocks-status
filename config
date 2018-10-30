@@ -6,7 +6,7 @@
 # ß
 # If the above line is not correctly displayed, fix your editor first!
 
-command=./$name
+command=./$name $instance
 colors=true
 interval=5
 
@@ -15,6 +15,14 @@ interval=5
 [disk]
 instance=/
 format=%avail
+
+# Default values
+#format=%free
+#format_below_threshold is left unset
+#format_not_mounted is left unset
+#prefix_type=binary
+#threshold_type=percentage_avail
+#low_threshold=0
 
 [wireless]
 instance=_first_

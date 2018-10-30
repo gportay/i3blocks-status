@@ -1,2 +1,127 @@
-#!/bin/sh
-# TODO implement this
+#!/bin/bash
+
+set -e
+
+IEC_SYMBOLS=("" "Ki" "Mi" "Gi" "Ti")
+SI_SYMBOLS=("" "k" "M" "G" "T")
+CUSTOM_SYMBOLS=("" "K" "M" "G" "T")
+
+# human_readable(numeric_value, divisor, symbols...)
+# Echoes a human readable string and return 0.
+human_readable() {
+	local value div
+	value="$1" && shift
+	div="$1" && shift
+
+	value="$((value*10))" # mult by 10 for decimal
+	for unit in "$@"
+	do
+		value="$((value/div))"
+		if [[ "$value" -lt "$((div*10))" ]] # mult by 10 for decimal
+		then
+			break
+		fi
+	done
+
+	# echo value with decimal dot and unit
+	echo "${value:0:${#value}-1}.${value:${#value}-1:1} ${unit}B"
+}
+
+# threshold_reached()
+# Return 1 if threshold is reached, 0 otherwise.
+threshold_reached() {
+	local value
+
+	case "$threshold_type" in
+	"percentage_free"|"percentage_avail")
+		eval "$(echo value=\"\$$threshold_type\")"
+		;;
+	"bytes_free"|"bytes_avail")
+		eval "$(echo value=\"\$_${threshold_type#bytes_*}\")"
+		;;
+	esac
+
+	echo "$value < $LOW_THRESHOLD" | bc | grep -q 1
+}
+
+# Required a single argument
+if [ $# -ne 1 ]
+then
+	cat <<EOF
+Usage: ${0##*/} MOUNT_POINT
+
+For a more thorough description, please refers to i3-status man page.
+
+EOF
+	exit 1
+fi >&2
+
+# Setup default values
+format="${format:-%free}"
+format_below_threshold="${format_below_threshold-$format}"
+# format_not_mounted is not set
+prefix_type="${prefix_type:-binary}"
+threshold_type="${threshold_type:-percentage_avail}"
+low_threshold="${low_threshold:-0}"
+
+case "$prefix_type" in
+binary)
+	div=1024
+	symbols=("${IEC_SYMBOLS[@]}")
+	;;
+decimal)
+	div=1000
+	symbols=("${SI_SYMBOLS[@]}")
+	;;
+custom)
+	div=1024
+	symbols=("${CUSTOM_SYMBOLS[@]}")
+	;;
+esac
+
+# If not mounted, exit early
+if ! mountpoint -q "$1"
+then
+	echo "$format_not_mounted"
+	exit
+fi
+
+# Set full text format string
+fulltext_format="$format"
+
+# Get total, avail and free amount from stat and deduce used from total and free
+eval "$(stat -fc "total=\$((%b * %S * 1024)); avail=\$((%a * %S* 1024)); free=\$((%f * %S* 1024)); used=\$((total-free));" "$1")"
+
+# ... and calculate percentages
+percentage_used="$(echo  "scale=1; $used  * 100 / $total" | bc)"
+percentage_free="$(echo  "scale=1; $free  * 100 / $total" | bc)"
+percentage_avail="$(echo "scale=1; $avail * 100 / $total" | bc)"
+percentage_used_of_avail="$(echo "scale=1; 100.0 - ($avail * 100 / $total)" | bc)"
+
+# Compute all placeholders values
+_total="$(human_readable "$total" "$div" "${symbols[@]}")"
+_free="$(human_readable  "$free"  "$div" "${symbols[@]}")"
+_avail="$(human_readable "$avail" "$div" "${symbols[@]}")"
+_used="$(human_readable  "$used"  "$div" "${symbols[@]}")"
+_percentage_used="$percentage_used%"
+_percentage_free="$percentage_free%"
+_percentage_avail="$percentage_avail%"
+_percentage_used_of_avail="$percentage_used_of_avail%"
+
+# Check for threshold to update formatted string
+if threshold_reached
+then
+	threshold=true
+	fulltext_format="$format_below_threshold"
+fi
+
+# Update full text (first line)
+eval "$(echo "echo \"${fulltext_format//%/\$_}\"")"
+
+# Update text color if threshold is reached
+if [[ $threshold ]]
+then
+	echo           # empty short text (second line)
+	echo "#ff0000" # text color (third line)
+	               # no background color (four line)
+fi
