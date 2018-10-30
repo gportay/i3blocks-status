@@ -1,2 +1,57 @@
-#!/bin/sh
-# TODO implement this
+#!/bin/bash
+
+set -e
+
+# Required a single argument
+if [ $# -ne 1 ]
+then
+	cat <<EOF
+Usage: ${0##*/} ZONE
+
+For a more thorough description, please refers to i3-status man page.
+
+EOF
+	exit 1
+fi >&2
+
+# Setup default values
+format="${format:-%degrees C}"
+format_above_threshold="${format_above_threshold-$format}"
+path="${path:-/sys/class/thermal/thermal_zone%d/temp}"
+max_threshold="${max_threshold:-75}"
+
+# Required a single argument
+syspath="$(printf "$path" "$1")"
+if ! [ -e "$syspath" ]
+then
+	echo "can't read temp"
+	exit 0
+fi
+
+# Set full text format string
+fulltext_format="$format"
+
+# Get temperature from file
+degrees="$(cat "$syspath")"
+
+# Compute degree placeholder value
+_degrees="$((degrees / 1000))"
+
+# Check for threshold to update formatted string
+fulltext_format="$format"
+if [[ $_degrees -ge $max_threshold ]]
+then
+	threshold=true
+	fulltext_format="$format_above_threshold"
+fi
+
+# Update full text (first line)
+eval "$(echo "echo \"${fulltext_format//%/\$_}\"")"
+
+# Update text color if threshold is reached
+if [[ $threshold ]]
+then
+	echo           # empty short text (second line)
+	echo "#ff0000" # text color (third line)
+	               # no background color (four line)
+fi

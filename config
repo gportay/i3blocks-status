@@ -69,3 +69,12 @@ format=%Y-%m-%d %H:%M:%S
 # timezone is not set
 # locale is not set
 # format_time is not set
+
+[cpu_temperature]
+instance=0
+
+# Default values
+#format=%degrees C
+# format_above_threshold is not set and fallback to format
+# path is not set and fallback to /sys/class/thermal/thermal_zone%d/temp
+#max_threshold=75
