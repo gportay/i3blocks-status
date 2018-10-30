@@ -38,6 +38,20 @@ format_down=E: down
 instance=all
 format=%status %percentage %remaining
 
+# Default values
+#format=%status %percentage %remaining
+#format_down=No battery
+#status_chr=CHR
+#status_bat=BAT
+#status_unk=UNK
+#status_full=FULL
+#path=/sys/class/power_supply/BAT%d/uevent
+#low_threshold=30
+#threshold_type=time
+#last_full_capacity=false
+#integer_battery_capacity=false
+#hide_seconds=true
+
 [load]
 format=%1min
 

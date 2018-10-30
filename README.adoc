@@ -24,7 +24,68 @@ Blocks (i3status "modules") are described below.
 
 == +battery+
 
-TODO
+Gets the +status+ (charging, discharging, unknown, full), +percentage+ and +remaining+ time of the given battery and when it’s estimated to be empty.
+
+If you want to use the last full capacity instead of the design capacity (when using the design capacity, it may happen that your battery is at 23% when fully charged because it’s old.
+In general, I want to see it this way, because it tells me how worn off my battery is.), just specify +last_full_capacity=true+.
+
+You can hide seconds in the remaining time and empty time estimations by setting +hide_seconds=true+.
+
+If you want the battery percentage to be shown without decimals, add +integer_battery_capacity=true+.
+
+If your battery is represented in a non-standard path in /sys, be sure to modify the "path" property accordingly, i.e. pointing to the uevent file on your system.
+The first occurrence of %d gets replaced with the battery number, but you can just hard-code a path as well.
+
+It is possible to define a +low_threshold+ that causes the battery text to be colored red.
+The +low_threshold+ type can be of +threshold_type+ "time" or "percentage".
+So, if you configure +low_threshold+ to 10 and +threshold_type+ to "time", and your battery lasts another 9 minutes, it will be colored red.
+
+To show an aggregate of all batteries in the system, use "all" as the number.
+In this case, the /sys path must contain the "%d" sequence.
+Otherwise, the number indicates the battery index as reported in /sys.
+
+Optionally custom strings including any UTF-8 symbols can be used for different battery states. 
+This makes it possible to display individual symbols for each state (+charging+, +discharging+, +unknown+, +full+).
+Of course it will also work with special iconic fonts, such as FontAwesome.
+If any of these special status strings are omitted, the default (+CHR+, +BAT+, +UNK+, +FULL+) is used.
+
+.Options
+[horizontal]
++instance+:: The battery number
++format+:: The format string (defaults to +%status %percentage %remaining+) +
+Placeholders can be: +%status+, +%percentage+, +%remaining+, +%emptytime+.
++format_down+:: The format string when battery is not present (defaults to +No battery+)
++status_chr+:: The string for the charging state (defaults to +CHR+)
++status_bat+:: The string for the battery state (defaults to +BAT+)
++status_unk+:: The string for the unknown state (defaults to +UNK+)
++status_full+:: The string for the full state (defaults to +FULL+)
++path+:: The path to the uevent file (defaults to +/sys/class/power_supply/BAT%d/uevent+) +
+The integer placeholder is replaced by the battery number (i.e. +instance+).
++threshold_type+:: The threshold type (defaults to +time+) +
+Values can be: +time+ (in minutes), +percentage+.
++low_threshold+:: The low threshold level (defaults to +30+)
++hide_seconds+:: To hide remaining seconds (defaults to +true+)
+
+.Example
+[source,ini]
+----
+[battery]
+instance=0
+
+# Default values
+#format=%status %percentage %remaining
+#format_down=No battery
+#status_chr=CHR
+#status_bat=BAT
+#status_unk=UNK
+#status_full=FULL
+#path=/sys/class/power_supply/BAT%d/uevent
+#low_threshold=30
+#threshold_type=time
+#last_full_capacity=false
+#integer_battery_capacity=false
+#hide_seconds=true
+----
 
 == +cpu_temperature+
 

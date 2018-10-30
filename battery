@@ -1,2 +1,170 @@
-#!/bin/sh
-# TODO implement this
+#!/bin/bash
+
+set -e
+
+# threshold_reached()
+# Return 1 if threshold is reached, 0 otherwise.
+threshold_reached() {
+	local value
+
+	case "$threshold_type" in
+	"percentage")
+		value="$percentage"
+		;;
+	"time")
+		# Convert into array and remove leading `0' character which is
+		# consider as an octal value (ie. 09 => 9)
+		IFS=":" read -a value < <(echo "$time")
+		read -a value < <(printf "%d %d %d\n" "${value[0]##*0}" "${value[1]##*0}" "${value[2]##*0}")
+
+		# Set value in minutes
+		value="$(((60 * value[0]) + value[1]))"
+		;;
+	esac
+
+	echo "$value < $low_threshold" | bc | grep -q 1
+}
+
+# Required a single argument
+if [ $# -ne 1 ]
+then
+	cat <<EOF
+Usage: ${0##*/} BAT_NUM|all
+
+For a more thorough description, please refers to i3-status man page.
+
+EOF
+	exit 1
+fi >&2
+
+# Setup default values
+format="${format:-%status %percentage %remaining}"
+format_down="${format_down:-No battery}"
+status_chr="${status_chr:-CHR}"
+status_bat="${status_bat:-BAT}"
+status_unk="${status_unk:-UNK}"
+status_full="${status_full:-FULL}"
+path="${path:-/sys/class/power_supply/BAT%d/uevent}"
+low_threshold="${low_threshold:-30}"
+threshold_type="${threshold_type:-time}"
+last_full_capacity="${last_full_capacity:-false}"
+integer_battery_capacity="${integer_battery_capacity:-false}"
+hide_seconds="${hide_seconds:-true}"
+
+# Required a single argument
+if [ "$1" = all ]
+then
+	syspath="${path/\%d\/uevent/*}"
+	batteries=($syspath)
+	regex="[0-9]\+"
+else
+	syspath="$(printf "$path" "$1")"
+	if ! [ -e "$syspath" ]
+	then
+		echo "$format_down"
+		exit 0
+	fi
+
+	batteries=("$syspath")
+	regex="$1"
+fi
+
+# Set full text format string
+fulltext_format="$format"
+
+# Update full text (first line)
+while read -a batt
+do
+	batt="${batt[0]}"
+	status="${batt[1]}"
+	percentage="${batt[2]}" # left unused
+	time="${batt[3]}"
+
+	uevent="$(printf "$path" "$batt")"
+	eval "$(cat "$uevent")"
+	if [[ $last_full_capacity == true ]]
+	then
+		percentage="$(echo "scale=2; 100 * $POWER_SUPPLY_ENERGY_NOW / $POWER_SUPPLY_ENERGY_FULL" | bc)"
+	else
+		percentage="$(echo "scale=2; 100 * $POWER_SUPPLY_ENERGY_NOW / $POWER_SUPPLY_ENERGY_FULL_DESIGN" | bc)"
+	fi
+
+	# Calculate until time (ie. emptytime)
+	if [[ $time ]]
+	then
+		# Convert into arrays and remove leading `0' character which is
+		# consider as an octal value (ie. 08 => 8)
+		IFS=":" read -a remaining < <(echo "$time")
+		IFS=":" read -a now < <(date "+%H:%M:%S")
+		read -a remaining < <(printf "%d %d %d\n" "${remaining[0]##*0}" "${remaining[1]##*0}" "${remaining[2]##*0}") 
+		read -a now < <(printf "%d %d %d\n" "${now[0]##*0}" "${now[1]##*0}" "${now[2]##*0}")
+
+		# emptytime = now + remaining
+		emptytime[1]="$(((now[2] + remaining[2]) / 60 + now[1] + remaining[1]))"
+		emptytime[2]="$(((now[2] + remaining[2]) % 60))"
+		emptytime[0]="$(((now[1] + remaining[1]) / 60 + now[0] + remaining[0]))"
+		emptytime[1]="$((emptytime[1] % 60))"
+		emptytime[0]="$((emptytime[0] % 24))"
+
+		unset now
+	fi
+
+	# Compute all placeholder values
+	case "$status" in
+        "Charging")
+		_status="$status_chr"
+		;;
+        "Full")
+		_status="$status_full"
+		;;
+        "Discharging"|"Not charging")
+		_status="$status_bat"
+		;;
+        *)
+		_status="$status_unk"
+		;;
+	esac
+	if [[ $integer_battery_capacity == true ]]
+	then
+		_percentage="${percentage%.*}%"
+	else
+		_percentage="$percentage%"
+	fi
+	if [[ $time ]]
+	then
+		if [[ $hide_seconds == true ]]
+		then
+			_remaining="$(printf "%02d:%02d\n" "${remaining[@]:0:2}" )"
+			_emptytime="$(printf "%02d:%02d\n" "${emptytime[@]:0:2}" )"
+		else
+			_remaining="$(printf "%02d:%02d:%02d\n" "${remaining[@]}" )"
+			_emptytime="$(printf "%02d:%02d:%02d\n" "${emptytime[@]}" )"
+		fi
+	else
+		_remaining="__empty__"
+		_emptytime="__empty__"
+	fi
+	_consumption="?.??W"
+
+	# Check for threshold to update color
+	if [[ $status =~ ^(Discharging|Not\ charging)$ ]] && threshold_reached
+	then
+		threshold=true
+	fi
+
+	# Update full text (first line) and remove empty placeholders w/ or
+	# w/out a leading space.
+	eval "$(echo "fulltext=\"${fulltext_format//%/\$_}\"")"
+	fulltext="${fulltext// __empty__/}"
+	fulltext="${fulltext//__empty__/}"
+	echo -n "${fulltext// __empty__/}"
+done < <(acpi -b | sed -n "/Battery [0-9]\+/{s/Battery \\([0-9]\+\\): \\([a-zA-Z]\\+\\), \\([0-9]\\+\\)%\(, \([0-9]\\{2\\}:[0-9]\\{2\\}:[0-9]\\{2\\}\).*\)\?/\1 \2 \4/p}")
+echo
+
+# Update text color if threshold is reached
+if [[ $threshold ]]
+then
+	echo           # empty short text (second line)
+	echo "#ff0000" # text color (third line)
+	               # no background color (four line)
+fi
