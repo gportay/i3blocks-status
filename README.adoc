@@ -356,7 +356,30 @@ format=%Y-%m-%d %H:%M:%S
 
 == +volume+
 
-TODO
+Outputs the volume of the specified mixer on the specified device.
+Only ALSA is supported.
+
+.Options
+[horizontal]
++format+:: Format string (defaults to +♪: %volume+).
+Placeholder is +%volume+.
++format_muted+:: Format string when the mixer is muted (defaults to +♪: 0%%+).
++device+:: The device (defaults to +default+)
++mixer+:: The mixer (defaults to +Master+)
++mixer_idx+:: The mixer id (defaults to +0+)
+
+.Example
+[source,ini]
+----
+[volume]
+
+# Default values
+#format=♪: %volume
+#format_muted=♪: 0%%
+#device=default
+#mixer=Master
+#mixer_idx=0
+----
 
 == +wireless+
 

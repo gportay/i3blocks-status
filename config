@@ -118,3 +118,12 @@ pidfile=/var/run/dhclient*.pid
 
 # Default values
 #format=%Y-%m-%d %H:%M:%S
+
+[volume]
+
+# Default values
+#format=♪: %volume
+#format_muted=♪: 0%%
+#device=default
+#mixer=Master
+#mixer_idx=0

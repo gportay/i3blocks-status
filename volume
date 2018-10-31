@@ -1,2 +1,65 @@
-#!/bin/sh
-# TODO implement this
+#!/bin/bash
+
+set -e
+
+# alsa_to_associative_array(mixer, mixer_id)
+# Extract alsa $mixer/$mixer_id into the $alsa shell associative array.
+#
+# Example:
+# Simple mixer control 'Master',0
+#   Capabilities: pvolume pswitch pswitch-joined
+#   Playback channels: Front Left - Front Right
+#   Limits: Playback 0 - 65536
+#   Mono:
+#   Front Left: Playback 55705 [85%] [off]
+#   Front Right: Playback 55705 [85%] [off]
+# in
+#alsa['Playback channels']="Front Left - Front Right"
+#alsa['Limits']="Playback 0 - 65536"
+#alsa['Mono']=""
+#alsa['Front Left']="Playback 55705 [85%] [off]"
+#alsa['Front Right']="Playback 55705 [85%] [off]"declare -A alsa
+alsa_to_associative_array() {
+	unset alsa
+	declare -gA alsa
+	eval "$(amixer | sed -n "/^Simple mixer control '$1',$2\$/,/^Simple mixer control /{//d;s, *\\([a-zA-Z _]*\\): *\\(.*\\)\$,alsa['\\1']=\"\\2\",p}")"
+}
+
+# Setup default values
+format="${format:-♪: %volume}"
+format_muted="${format_muted:-♪: 0%}"
+device="${device:-default}"
+mixer="${mixer:-Master}"
+mixer_idx="${mixer_idx:-0}"
+
+# Set full text format string
+fulltext_format="$format"
+
+# Get the left volume of alsa mixer
+alsa_to_associative_array "$mixer" "$mixer_idx"
+IFS=" " read -r -a left_volume <<< "${alsa['Front Left']}"
+
+# Muted?
+if [[ ${left_volume[3]} == "[off]" ]]
+then
+	muted=true
+	fulltext_format="$format_muted"
+fi
+
+# Get volume and remove brackets
+_volume="${left_volume[2]}"
+_volume="${_volume//[}"
+_volume="${_volume//]}"
+
+# Update full text (first line)
+_pct_mark="%"
+fulltext_format="${fulltext_format//%%/\$_pct_mark}"
+eval "$(echo "echo \"${fulltext_format//%/\$_}\"")"
+
+# Update text color if threshold is reached
+if [[ $muted ]]
+then
+	echo           # empty short text (second line)
+	echo "#ffff00" # text color (third line)
+	               # no background color (four line)
+fi
