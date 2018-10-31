@@ -156,7 +156,22 @@ format=json
 
 == +ddate+
 
-TODO
+Outputs the current discordian date in user-specified format.
+See +ddate(1)+ for details on the format string.
+
+.Options
+[horizontal]
++format+:: The +ddate+ format string (defaults to +%{%a, %b %d%}, %Y%N - %H+) +
+See +ddate(1)+ for details on the format string.
+
+.Example
+[source,ini]
+----
+[ddate]
+
+# Default values
+#format=%{%a, %b %d%}, %Y%N - %H
+----
 
 == +disk+
 

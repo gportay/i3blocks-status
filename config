@@ -89,3 +89,8 @@ format=json
 #path=/proc/stat
 #max_threshold=95
 #degraded_threshold=90
+
+[ddate]
+
+# Default values
+#format=%{%a, %b %d%}, %Y%N - %H
