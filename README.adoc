@@ -306,7 +306,21 @@ pidfile=/var/run/dhclient*.pid
 
 == +time+
 
-TODO
+Outputs the current time.
+
+.Options
+[horizontal]
++format+:: The +strftime+ format string (defaults to +%Y-%m-%d %H:%M:%S+) +
+See +strftime(3)+ for details on the format string.
+
+.Example
+[source,ini]
+----
+[time]
+
+# Default values
+#format=%Y-%m-%d %H:%M:%S
+----
 
 == +tztime+
 

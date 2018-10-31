@@ -113,3 +113,8 @@ pidfile=/var/run/dhclient*.pid
 # pidfile is not set and must be set
 #format=%title: %status
 # format_down is not set and fallback to format if pid does not exist
+
+[time]
+
+# Default values
+#format=%Y-%m-%d %H:%M:%S
