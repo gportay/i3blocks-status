@@ -1,2 +1,71 @@
-#!/bin/sh
-# TODO implement this
+#!/bin/bash
+
+set -e
+
+# Setup default values
+full_format="${full_format:-%usage}"
+# format_above_threshold is not set
+# format_above_degraded_threshold is not set
+path="${path:-/proc/stat}"
+max_threshold="${max_threshold:-95}"
+degraded_threshold="${degraded_threshold:-90}"
+
+if ! [ -e "$path" ]
+then
+	echo "cant read cpu usage"
+	exit 0
+fi
+
+# Set full text format string and color
+fulltext_format="$full_format"
+color="#ffffff"
+extra_json+=",\"color\":\"$color\""
+
+# Compute cpuX placeholder value from procfile (current) and variable (previous)
+# user: normal processes executing in user mode
+# nice: niced processes executing in user mode
+# system: processes executing in kernel mode
+# idle: twiddling thumbs
+# iowait: waiting for I/O to complete
+# irq: servicing interrupts
+# softirq: servicing softirqs
+while read -a curr_cpu
+do
+	id="${curr_cpu[0]}"
+
+	# Set prev_cpuX from $cpuX or $currr_cpuX if unset
+	eval "$(echo "read -a prev_cpu < <(echo "\${$id:-${curr_cpu[*]}}")")"
+
+	# Compute cpuX placeholder value
+	prev_total="$((prev_cpu[1] + prev_cpu[2] + prev_cpu[3] + prev_cpu[4]))"
+	curr_total="$((curr_cpu[1] + curr_cpu[2] + curr_cpu[3] + curr_cpu[4]))"
+	idle="$((curr_cpu[4] - prev_cpu[4]))"
+	total="$((curr_total - prev_total))"
+	usage=0
+	if [[ $total -ne 0 ]]
+	then
+		usage="$((((1000 * (total - idle) / total + 5) / 10)))"
+	fi
+	eval "$(echo "_$id='$(printf "%02d%%" "$usage")'")"
+
+	# Propagate cpu stat
+	extra_json+=",\"$id\":\"${curr_cpu[*]}\""
+done < <(grep -E "^cpu[0-9]* " "$path")
+
+# Compute usage placeholder value
+_usage="$_cpu"
+
+# Check for threshold and degraded threshold to update formatted string
+if [[ $cpu -ge $max_threshold ]]
+then
+	color="${color_bad:-#ff0000}"
+	fulltext_format="${format_above_threshold-$full_format}"
+elif [[ $cpu -ge $degraded_threshold ]]
+then
+	color="${color_degraded:-#ffff00}"
+	fulltext_format="${format_above_degraded_threshold-$full_format}"
+fi
+
+# Update json and set current cpu stat
+eval "$(echo "fulltext=\"${fulltext_format//%/\$_}\"")"
+printf '{"full_text":"%s"%s}\n' "$fulltext" "$extra_json"

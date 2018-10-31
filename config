@@ -78,3 +78,14 @@ instance=0
 # format_above_threshold is not set and fallback to format
 # path is not set and fallback to /sys/class/thermal/thermal_zone%d/temp
 #max_threshold=75
+
+[cpu_usage]
+format=json
+
+# Default values
+#full_format=%usage
+# format_above_threshold is not set and fallback to full_format
+# format_above_degraded_threshold is not set and fallback to full_format
+#path=/proc/stat
+#max_threshold=95
+#degraded_threshold=90
