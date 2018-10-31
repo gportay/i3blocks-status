@@ -249,7 +249,32 @@ Placeholders can be: +%1min+, +%5min+, +%15min+.
 
 == +path_exists+
 
-TODO
+Checks if the given path exists in the filesystem.
+You can use this to check if something is active, like for example a VPN tunnel managed by NetworkManager.
+There also is an option "format_down".
+You can hide the output with format_down="".
+
+.Options
+[horizontal]
++instance+:: The title.
++path+:: The path to the file (must be set).
++format+:: The format string (defaults to +%title: %status+) +
+Placeholders can be: +%title+ (i.e. +instance+), +%status+ (i.e. +yes+ or +no+).
++format_down+:: The format string when the file does not exist at +path+ (defaults to format).
+
+.Example
+[source,ini]
+----
+[path_exists]
+instance=VPN
+# path exists when a VPN tunnel launched by nmcli/nm-applet is active
+path=/proc/sys/net/ipv4/conf/tun0
+
+# Default values
+# path is not set and must be set
+#format=%title: %status
+# format_down is not set and fallback to format if path does not exist
+----
 
 == +run_watch+
 

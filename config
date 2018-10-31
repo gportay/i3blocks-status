@@ -94,3 +94,13 @@ format=json
 
 # Default values
 #format=%{%a, %b %d%}, %Y%N - %H
+
+[path_exists]
+instance=VPN
+# path exists when a VPN tunnel launched by nmcli/nm-applet is active
+path=/proc/sys/net/ipv4/conf/tun0
+
+# Default values
+# path is not set and must be set
+#format=%title: %status
+# format_down is not set and fallback to format if path does not exist
