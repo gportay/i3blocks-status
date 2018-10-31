@@ -1,2 +1,64 @@
-#!/bin/sh
-# TODO implement this
+#!/bin/bash
+
+set -e
+
+# Required a single argument
+if [ $# -ne 1 ]
+then
+	cat <<EOF
+Usage: ${0##*/} TITLE
+
+For a more thorough description, please refers to i3-status man page.
+
+EOF
+	exit 1
+fi >&2
+
+# Setup default values
+# pidfile is not set and must be set
+format="${format-%title: %status}"
+format_down="${format_down-$format}"
+
+# Set full text format string
+fulltext_format="$format"
+
+# For all pidfiles
+error="no"
+pidfiles=($pidfile)
+for f in "${pidfiles[@]}"
+do
+	# pidfile exists?
+	if ! [[ -e $f ]]
+	then
+		status="no"
+		break
+	fi
+
+	# pid runs?
+	pid="$(cat "$f" || echo "0")"
+	if ! [[ -d "/proc/$pid/" ]]
+	then
+		status="no"
+		break
+	fi
+done
+
+# Compute all placeholders values
+_title="$1"
+if [[ $status == "no" ]]
+then
+	_status="no"
+	color="#ff0000"
+	fulltext_format="$format_down"
+else
+	_status="yes"
+	color="#00ff00"
+fi
+
+# Update full text (first line)
+eval "$(echo "echo \"${fulltext_format//%/\$_}\"")"
+
+# Update text color
+echo          # empty short text (second line)
+echo "$color" # text color (third line)
+              # no background color (four line)

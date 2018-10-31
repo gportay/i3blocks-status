@@ -104,3 +104,12 @@ path=/proc/sys/net/ipv4/conf/tun0
 # path is not set and must be set
 #format=%title: %status
 # format_down is not set and fallback to format if path does not exist
+
+[run_watch]
+instance=DHCP
+pidfile=/var/run/dhclient*.pid
+
+# Default values
+# pidfile is not set and must be set
+#format=%title: %status
+# format_down is not set and fallback to format if pid does not exist
