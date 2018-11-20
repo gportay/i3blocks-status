@@ -82,19 +82,19 @@ format=%Y-%m-%d %H:%M:%S
 # timezone is not set
 # locale is not set
 # format_time is not set
-
-[cpu_temperature]
-instance=0
-
+#
+#[cpu_temperature]
+#instance=0
+#
 # Default values
 #format=%degrees C
 # format_above_threshold is not set and fallback to format
 # path is not set and fallback to /sys/class/thermal/thermal_zone%d/temp
 #max_threshold=75
-
-[cpu_usage]
-format=json
-
+#
+#[cpu_usage]
+#format=json
+#
 # Default values
 #full_format=%usage
 # format_above_threshold is not set and fallback to full_format
@@ -102,38 +102,38 @@ format=json
 #path=/proc/stat
 #max_threshold=95
 #degraded_threshold=90
-
-[ddate]
-
+#
+#[ddate]
+#
 # Default values
 #format=%{%a, %b %d%}, %Y%N - %H
-
-[path_exists]
-instance=VPN
+#
+#[path_exists]
+#instance=VPN
 # path exists when a VPN tunnel launched by nmcli/nm-applet is active
-path=/proc/sys/net/ipv4/conf/tun0
-
+#path=/proc/sys/net/ipv4/conf/tun0
+#
 # Default values
 # path is not set and must be set
 #format=%title: %status
 # format_down is not set and fallback to format if path does not exist
-
-[run_watch]
-instance=DHCP
-pidfile=/var/run/dhclient*.pid
-
+#
+#[run_watch]
+#instance=DHCP
+#pidfile=/var/run/dhclient*.pid
+#
 # Default values
 # pidfile is not set and must be set
 #format=%title: %status
 # format_down is not set and fallback to format if pid does not exist
-
-[time]
-
+#
+#[time]
+#
 # Default values
 #format=%Y-%m-%d %H:%M:%S
-
-[volume]
-
+#
+#[volume]
+#
 # Default values
 #format=♪: %volume
 #format_muted=♪: 0%%
