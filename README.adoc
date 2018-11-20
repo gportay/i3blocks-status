@@ -11,6 +11,7 @@ With i3blocks link:https://vivien.github.io/i3blocks/#_installation[set up], you
 [source]
 ----
 git clone https://github.com/vivien/i3blocks-status.git ~/.config/i3blocks
+make -C !$ ipv6
 i3blocks # or from another location with -c i3block-status/config
 ----
 
@@ -219,7 +220,21 @@ TODO
 
 == +ipv6+
 
-TODO
+This module gets the +IPv6+ address used for outgoing connections (that is, the best available public +IPv6+ address on your computer).
+
+.Options
+[horizontal]
++format_up+:: Format string when an IPv6 is set (defaults to +%ip+) +
+Placeholder is +%ip+.
++format_down+:: Format string when no IPv6 is set (defaults to +No IPv6+.)
+
+.Example
+[source,ini]
+----
+[ipv6]
+format_up=%ip
+format_down=No IPv6
+----
 
 == +load+
 
