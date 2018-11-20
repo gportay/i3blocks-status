@@ -216,7 +216,24 @@ instance=/
 
 == +ethernet+
 
-TODO
+Gets the +IP+ address and (if possible) the link +speed+ of the given ethernet interface.
+The special interface name +_first_+ will be replaced by the first non-wireless network interface found on the system (excluding devices starting with "lo").
+
+.Options
+[horizontal]
++instance+:: Network interface (defaults to +_first_+)
++format_up+:: Format string when the interface is up. +
+Placeholders can be: +%ip+, +%speed+, +%interface+.
++format_down+:: Format string when the interface is down.
+
+.Example
+[source,ini]
+----
+[ethernet]
+instance=eth0
+format_up=E: %ip (%speed)
+format_down=E: down
+----
 
 == +ipv6+
 
