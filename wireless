@@ -25,9 +25,12 @@ ip () {
   ifconfig "$INTERFACE" | grep -w inet | awk '{ print $2 }'
 }
 
+link_quality () {
+  iwconfig "$INTERFACE" | grep 'Link ' | sed 's,.*Quality=\([0-9]\+/[0-9]\+\) .*,100*\1,' | bc
+}
+
 quality () {
-  # TODO get percentage instead like i3status
-  iwconfig "$INTERFACE" | grep 'Link Quality' | cut -d= -f2 | cut -d' ' -f1
+  printf "%3d%s" "$(link_quality)" "%"
 }
 
 if grep -wq up "/sys/class/net/$INTERFACE/operstate"
