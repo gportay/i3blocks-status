@@ -41,7 +41,7 @@ threshold_reached() {
 		;;
 	esac
 
-	echo "$value < $LOW_THRESHOLD" | bc | grep -q 1
+	echo "$value < $low_threshold" | bc | grep -q 1
 }
 
 # Required a single argument
