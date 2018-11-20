@@ -230,9 +230,11 @@ Placeholders can be: +%ip+, +%speed+, +%interface+.
 [source,ini]
 ----
 [ethernet]
-instance=eth0
-format_up=E: %ip (%speed)
-format_down=E: down
+instance=_first_
+
+# Default values
+#format_up=E: %ip (%speed)
+#format_down=E: down
 ----
 
 == +ipv6+
@@ -249,8 +251,10 @@ Placeholder is +%ip+.
 [source,ini]
 ----
 [ipv6]
-format_up=%ip
-format_down=No IPv6
+
+# Default values
+#format_up=%ip
+#format_down=No IPv6
 ----
 
 == +load+
@@ -428,7 +432,9 @@ Placeholders can be: +%bitrate+, +%essid+, +%frequency+, +%ip+, +%quality+.
 [source,ini]
 ----
 [wireless]
-instance=wlan0
-format_up=W: (%quality at %essid, %bitrate / %frequency) %ip
-format_down=W: down
+instance=_first_
+
+# Default values
+#format_up=W: (%quality at %essid, %bitrate / %frequency) %ip
+#format_down=W: down
 ----

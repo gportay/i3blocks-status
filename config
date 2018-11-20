@@ -12,6 +12,10 @@ interval=5
 
 [ipv6]
 
+# Default values
+#format_up=%ip
+#format_down=No IPv6
+
 [disk]
 instance=/
 format=%avail
@@ -29,10 +33,19 @@ instance=_first_
 format_up=W: (%quality at %essid) %ip
 format_down=W: down
 
+# Default values
+#format_up=W: (%quality at %essid, %bitrate) %ip
+#format_down="W: down
+#format_quality="%3d%s
+
 [ethernet]
 instance=_first_
 format_up=E: %ip (%speed)
 format_down=E: down
+
+# Default values
+#format_up=E: %ip (%speed)
+#format_down=E: down
 
 [battery]
 instance=all
