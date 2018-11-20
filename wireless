@@ -3,6 +3,7 @@
 INTERFACE="${instance:-_first_}"
 FORMAT_UP="${format_up:-W: (%quality at %essid) %ip}"
 FORMAT_DOWN="${format_down:-W: down}"
+FORMAT_QUALITY="${format_quality:-%3d%s}"
 
 if [ "$INTERFACE" = "_first_" ]
 then
@@ -30,7 +31,7 @@ link_quality () {
 }
 
 quality () {
-  printf "%3d%s" "$(link_quality)" "%"
+  printf "$FORMAT_QUALITY" "$(link_quality)" "%"
 }
 
 if grep -wq up "/sys/class/net/$INTERFACE/operstate"

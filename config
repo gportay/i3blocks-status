@@ -42,10 +42,12 @@ format_down=W: down
 instance=_first_
 format_up=E: %ip (%speed)
 format_down=E: down
+format_quality=%3d%s
 
 # Default values
 #format_up=E: %ip (%speed)
 #format_down=E: down
+#format_quality=%3d%s
 
 [battery]
 instance=all

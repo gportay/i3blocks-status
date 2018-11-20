@@ -427,6 +427,7 @@ Get the link quality, frequency, and ESSID of the given wireless network interfa
 +format_up+:: Format string when the interface is up. +
 Placeholders can be: +%bitrate+, +%essid+, +%frequency+, +%ip+, +%quality+.
 +format_down+:: Format string when the interface is down.
++format_quality+:: Format string for quality (defaults to +%3d%s+).
 
 .Example
 [source,ini]
@@ -437,4 +438,5 @@ instance=_first_
 # Default values
 #format_up=W: (%quality at %essid, %bitrate / %frequency) %ip
 #format_down=W: down
+#format_quality=%3d%s
 ----
