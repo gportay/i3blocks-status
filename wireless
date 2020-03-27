@@ -7,7 +7,7 @@ FORMAT_QUALITY="${format_quality:-%3d%s}"
 
 if [ "$INTERFACE" = "_first_" ]
 then
-  INTERFACE="$(cat /proc/net/wireless | sed -n 3p | cut -d: -f1)"
+  INTERFACE="$(cat /proc/net/wireless | sed -n 3p | cut -d: -f1 | sed -e 's/^[[:space:]]*//')"
 fi
 
 bitrate () {
